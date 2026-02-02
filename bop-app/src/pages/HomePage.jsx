@@ -1,0 +1,205 @@
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Sparkles, LayoutGrid, List } from 'lucide-react';
+import HeroSection from '../components/HeroSection';
+import TokenCard from '../components/TokenCard';
+import SearchBar from '../components/SearchBar';
+import Sidebar from '../components/Sidebar';
+import Footer from '../components/Footer';
+import { useProjects } from '../hooks/useProjects';
+
+const ITEMS_PER_PAGE = 9;
+
+export default function HomePage() {
+  const { projects: rawProjects, loading } = useProjects();
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState('trending');
+  const [category, setCategory] = useState(searchParams.get('category') || '');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
+  const [copiedAddress, setCopiedAddress] = useState(null);
+  const [page, setPage] = useState(1);
+
+  const copyAddress = (address, id) => {
+    navigator.clipboard.writeText(address);
+    setCopiedAddress(id);
+    setTimeout(() => setCopiedAddress(null), 2000);
+  };
+
+  const filteredAndSorted = useMemo(() => {
+    let tokens = [...rawProjects];
+
+    if (search) {
+      const q = search.toLowerCase();
+      tokens = tokens.filter(
+        (t) =>
+          t.name.toLowerCase().includes(q) ||
+          t.ticker.toLowerCase().includes(q) ||
+          t.issuer.toLowerCase().includes(q) ||
+          t.tagline.toLowerCase().includes(q) ||
+          (t.category && t.category.toLowerCase().includes(q))
+      );
+    }
+
+    if (category) {
+      tokens = tokens.filter((t) => t.category === category);
+    }
+
+    if (verifiedOnly) {
+      tokens = tokens.filter((t) => t.badges.includes('Verified'));
+    }
+
+    switch (sortBy) {
+      case 'views':
+        tokens.sort((a, b) => b.views - a.views);
+        break;
+      case 'comments':
+        tokens.sort((a, b) => b.comments - a.comments);
+        break;
+      case 'newest':
+        tokens.sort((a, b) => b.id - a.id);
+        break;
+      case 'holders':
+        tokens.sort((a, b) => parseInt(b.holders.replace(/,/g, '')) - parseInt(a.holders.replace(/,/g, '')));
+        break;
+      default:
+        tokens.sort((a, b) => b.views + b.comments - (a.views + a.comments));
+    }
+
+    return tokens;
+  }, [rawProjects, search, sortBy, category, verifiedOnly]);
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filteredAndSorted.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredAndSorted, page]);
+
+  const totalPages = Math.ceil(filteredAndSorted.length / ITEMS_PER_PAGE);
+
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat) setCategory(cat);
+  }, [searchParams]);
+
+  return (
+    <>
+      <HeroSection />
+
+      <section id="directory" className="relative py-20 px-6 bg-gradient-to-b from-black to-neutral-950 scroll-mt-20 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto flex gap-8 overflow-hidden">
+          <div className="flex-1 min-w-0 overflow-hidden">
+        {loading && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="text-amber-400 font-display text-2xl">Loading...</div>
+          </div>
+        )}
+        <div>
+          <div className="text-center mb-12 space-y-4">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Sparkles className="w-6 h-6 text-amber-400" />
+              <span className="text-amber-400 uppercase tracking-widest text-sm font-semibold">Featured Projects</span>
+              <Sparkles className="w-6 h-6 text-amber-400" />
+            </div>
+            <h2 className="font-display text-5xl md:text-6xl font-bold text-white">
+              Verified <span className="text-amber-400">XRPL</span> Tokens
+            </h2>
+            <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
+              Curated collection of community-driven projects committed to peace and prosperity
+            </p>
+          </div>
+
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            category={category}
+            onCategoryChange={setCategory}
+            verifiedOnly={verifiedOnly}
+            onVerifiedOnlyChange={setVerifiedOnly}
+          />
+
+          <div className="flex items-center justify-between mb-8">
+            <span className="text-neutral-400">
+              {filteredAndSorted.length} project{filteredAndSorted.length !== 1 ? 's' : ''}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-amber-600/20 text-amber-400' : 'text-neutral-500 hover:text-white'}`}
+              >
+                <LayoutGrid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-amber-600/20 text-amber-400' : 'text-neutral-500 hover:text-white'}`}
+              >
+                <List className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {viewMode === 'grid' ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 min-w-0">
+              {paginated.map((token) => (
+                <TokenCard
+                  key={token.id}
+                  token={token}
+                  copiedAddress={copiedAddress}
+                  onCopyAddress={copyAddress}
+                  viewMode="grid"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4 min-w-0">
+              {paginated.map((token) => (
+                <TokenCard
+                  key={token.id}
+                  token={token}
+                  copiedAddress={copiedAddress}
+                  onCopyAddress={copyAddress}
+                  viewMode="list"
+                />
+              ))}
+            </div>
+          )}
+
+          {filteredAndSorted.length === 0 && (
+            <div className="text-center py-16 text-neutral-400">
+              No projects match your filters. Try adjusting your search.
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-12">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 bg-neutral-800 disabled:opacity-50 rounded-lg text-white hover:bg-neutral-700 transition-colors"
+              >
+                Previous
+              </button>
+              <span className="px-4 py-2 text-neutral-400">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-4 py-2 bg-neutral-800 disabled:opacity-50 rounded-lg text-white hover:bg-neutral-700 transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+        </div>
+        <Sidebar />
+        </div>
+      </section>
+
+      <Footer />
+    </>
+  );
+}

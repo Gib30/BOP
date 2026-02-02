@@ -1,0 +1,6 @@
+.env
+.env.local
+bop_keys.txt
+*.log
+.DS_Store
+bop-app/supabase/.temp/
