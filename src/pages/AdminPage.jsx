@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase, hasSupabase } from '../lib/supabase';
-import { Check, X, ExternalLink } from 'lucide-react';
+import { Check, X, Lock } from 'lucide-react';
 
 export default function AdminPage() {
   const [pending, setPending] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(() => !!sessionStorage.getItem('adminAuth'));
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
 
   useEffect(() => {
-    if (!hasSupabase) {
+    if (!hasSupabase || !authenticated) {
       setLoading(false);
       return;
     }
@@ -24,7 +28,36 @@ export default function AdminPage() {
     }
 
     fetchPending();
-  }, []);
+  }, [authenticated]);
+
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+    if (!password.trim()) return;
+
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const res = await fetch('/api/admin-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password.trim() }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.ok) {
+        sessionStorage.setItem('adminAuth', '1');
+        setAuthenticated(true);
+      } else {
+        setAuthError(data.error || 'Invalid password');
+      }
+    } catch {
+      setAuthError('Could not reach server. Deploy to Vercel for admin auth.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   const approve = async (id) => {
     const { error } = await supabase.from('projects').update({ status: 'approved' }).eq('id', id);
@@ -41,6 +74,39 @@ export default function AdminPage() {
       <div className="max-w-2xl mx-auto px-6 py-20 text-center">
         <h1 className="font-display text-3xl font-bold text-white mb-4">Admin</h1>
         <p className="text-neutral-400">Supabase not configured. Add env vars to enable moderation.</p>
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <div className="max-w-md mx-auto px-6 py-20">
+        <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-8">
+          <h1 className="font-display text-2xl font-bold text-white mb-2 flex items-center gap-2">
+            <Lock className="w-6 h-6 text-amber-400" />
+            Admin Access
+          </h1>
+          <p className="text-neutral-400 text-sm mb-6">Enter the admin password to access the moderation queue.</p>
+          <form onSubmit={handleAuthSubmit}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full px-4 py-3 bg-black/40 border border-neutral-800 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-amber-700 mb-4"
+              autoFocus
+              disabled={authLoading}
+            />
+            {authError && <p className="text-red-400 text-sm mb-4">{authError}</p>}
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="w-full py-3 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-medium rounded-xl transition-colors"
+            >
+              {authLoading ? 'Checking...' : 'Sign in'}
+            </button>
+          </form>
+        </div>
       </div>
     );
   }

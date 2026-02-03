@@ -2,7 +2,7 @@ import { Search } from 'lucide-react';
 
 export default function SearchBar({ value, onChange, sortBy, onSortChange, category, onCategoryChange, verifiedOnly, onVerifiedOnlyChange }) {
   return (
-    <div className="sticky top-16 z-30 py-4 bg-neutral-950/95 backdrop-blur-md border-b border-neutral-800 mb-8">
+    <div className="sticky top-16 z-30 py-4 bg-neutral-950/95 backdrop-blur-md border-b border-neutral-800 mb-8 max-w-full">
       <div className="w-full max-w-4xl space-y-4">
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />

@@ -36,8 +36,10 @@ XRPL token directory for the Board of Peace community. Built with React, Vite, T
 
 1. Push to GitHub
 2. Import project in Vercel
-3. Add env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+3. Add env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `ADMIN_PASSWORD`
 4. Deploy
+
+**Keep-alive:** Add `https://your-app.vercel.app/api/keepalive` to [UptimeRobot](https://uptimerobot.com) (or similar) with a 5-minute interval to prevent Supabase free-tier inactivity pause.
 
 ## Features
 
@@ -45,7 +47,7 @@ XRPL token directory for the Board of Peace community. Built with React, Vite, T
 - Project detail pages with media gallery, roadmap, team, comments
 - Threaded comments with upvote/downvote (Supabase)
 - Project submission wizard
-- Admin moderation queue
+- Admin moderation queue (password-protected via `ADMIN_PASSWORD`)
 - XRPL Trust Token and DEX links
 - Sidebar with categories, featured, trending
 - Footer with XRPL resources
