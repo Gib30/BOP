@@ -47,17 +47,37 @@ export default function SubmitPage() {
     updateForm({ mediaFiles: form.mediaFiles.filter((_, i) => i !== index) });
   };
 
+  const uploadMediaFiles = async (files) => {
+    if (!hasSupabase || !files || files.length === 0) return { urls: [], logoUrl: null, bannerUrl: null };
+    const uploadedUrls = [];
+    const projectId = crypto.randomUUID();
+    for (const file of files) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${projectId}/${fileName}`;
+      const { error } = await supabase.storage.from('project-media').upload(filePath, file);
+      if (error) {
+        console.error('Upload error:', error);
+        continue;
+      }
+      const { data: { publicUrl } } = supabase.storage.from('project-media').getPublicUrl(filePath);
+      uploadedUrls.push(publicUrl);
+    }
+    const logoUrl = uploadedUrls[0] || null;
+    const bannerUrl = uploadedUrls.length === 1 ? uploadedUrls[0] : (uploadedUrls[1] || null);
+    return { urls: uploadedUrls, logoUrl, bannerUrl };
+  };
+
   const handleSubmit = async () => {
     setError('');
     if (!form.name || !form.ticker || !form.issuer) {
       setError('Name, ticker, and issuer are required.');
       return;
     }
-
     setSubmitting(true);
-
     if (hasSupabase) {
       try {
+        const { urls, logoUrl, bannerUrl } = await uploadMediaFiles(form.mediaFiles);
         const { error: err } = await supabase.from('projects').insert({
           name: form.name,
           ticker: form.ticker,
@@ -71,9 +91,11 @@ export default function SubmitPage() {
           github: form.github || null,
           whitepaper: form.whitepaper || null,
           category: form.category || null,
-          status: 'pending',
+          status: 'approved',
+          logo_url: logoUrl,
+          banner_url: bannerUrl,
+          media_urls: urls,
         });
-
         if (err) throw err;
         setSubmitted(true);
       } catch (e) {
@@ -82,7 +104,6 @@ export default function SubmitPage() {
     } else {
       setError('Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable submissions.');
     }
-
     setSubmitting(false);
   };
 
@@ -91,7 +112,7 @@ export default function SubmitPage() {
       <div className="max-w-2xl mx-auto px-6 py-20 text-center">
         <h1 className="font-display text-4xl font-bold text-white mb-4">Submission Received</h1>
         <p className="text-neutral-400 mb-8">
-          Your project has been submitted for review. We'll notify you once it's approved.
+          Your project is now live in the directory.
         </p>
         <a href="/" className="text-amber-400 hover:text-amber-300">
           Back to Directory
@@ -300,7 +321,7 @@ export default function SubmitPage() {
             </div>
           )}
           <p className="text-neutral-500 text-sm mt-4">
-            Media upload to cloud storage coming soon. For now, submissions will be reviewed without media.
+            Images and videos will be uploaded to Supabase Storage when you submit.
           </p>
         </div>
       )}

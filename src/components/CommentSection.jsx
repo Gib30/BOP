@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { MessageCircle, ThumbsUp, ThumbsDown, Reply } from 'lucide-react';
 import { useComments, postComment, voteComment } from '../hooks/useComments';
+import { useWallet } from '../context/WalletContext';
+import ConnectWalletButton from './ConnectWalletButton';
 
 export default function CommentSection({ projectId, commentCount }) {
   const [sortBy, setSortBy] = useState('newest');
   const [content, setContent] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [walletConnected, setWalletConnected] = useState(false);
   const [displayName, setDisplayName] = useState('');
+  const { account, isConnected } = useWallet();
 
   const { comments, loading } = useComments(projectId, sortBy);
 
@@ -21,8 +23,8 @@ export default function CommentSection({ projectId, commentCount }) {
       projectId,
       content.trim(),
       replyingTo?.id,
-      walletConnected ? 'wallet-placeholder' : null,
-      displayName || 'Anonymous'
+      isConnected ? account : null,
+      displayName || (isConnected ? `${account?.slice(0, 8)}...` : 'Anonymous')
     );
     setSubmitting(false);
 
@@ -46,13 +48,13 @@ export default function CommentSection({ projectId, commentCount }) {
       </h2>
 
       <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-6 mb-6">
-        {!walletConnected && (
+        {!isConnected && (
           <p className="text-neutral-400 text-sm mb-4">
             Connect your wallet to join the conversation, or post as Anonymous.
           </p>
         )}
         <form onSubmit={handleSubmit}>
-          {!walletConnected && (
+          {!isConnected && (
             <input
               type="text"
               placeholder="Display name (optional)"
@@ -81,14 +83,8 @@ export default function CommentSection({ projectId, commentCount }) {
               )}
             </div>
             <div className="flex gap-2">
-              {!walletConnected && (
-                <button
-                  type="button"
-                  onClick={() => setWalletConnected(true)}
-                  className="px-4 py-2 bg-amber-600/20 text-amber-400 border border-amber-600/50 rounded-xl font-semibold hover:bg-amber-600/30 transition-colors"
-                >
-                  Connect Wallet
-                </button>
+              {!isConnected && (
+                <ConnectWalletButton variant="outline" className="px-4 py-2" />
               )}
               <button
                 type="submit"
@@ -154,6 +150,11 @@ function CommentItem({ comment, onReply, onVote }) {
             <span className="font-semibold text-white">
               {comment.display_name || comment.wallet_address?.slice(0, 8) + '...' || 'Anonymous'}
             </span>
+            {comment.wallet_address && (
+              <span className="px-2 py-0.5 text-xs font-medium bg-amber-600/20 text-amber-400 rounded-full border border-amber-600/50">
+                Verified
+              </span>
+            )}
             <span className="text-neutral-500 text-sm">
               {new Date(comment.created_at).toLocaleDateString()}
             </span>
@@ -194,6 +195,11 @@ function CommentItem({ comment, onReply, onVote }) {
                 <span className="font-semibold text-white text-sm">
                   {reply.display_name || reply.wallet_address?.slice(0, 8) + '...' || 'Anonymous'}
                 </span>
+                {reply.wallet_address && (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-amber-600/20 text-amber-400 rounded-full border border-amber-600/50">
+                    Verified
+                  </span>
+                )}
                 <span className="text-neutral-500 text-xs">
                   {new Date(reply.created_at).toLocaleDateString()}
                 </span>

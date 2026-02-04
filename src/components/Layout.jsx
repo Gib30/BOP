@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { LOGO_PATH } from '../lib/constants';
+import ConnectWalletButton from './ConnectWalletButton';
 
 export default function Layout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,9 +20,7 @@ export default function Layout({ children }) {
             <Link to="/submit" className="text-neutral-300 hover:text-amber-400 transition-colors">Submit Project</Link>
             <Link to="/dashboard" className="text-neutral-300 hover:text-amber-400 transition-colors">Dashboard</Link>
             <Link to="/admin" className="text-neutral-300 hover:text-amber-400 transition-colors">Admin</Link>
-            <button className="px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-full font-semibold transition-colors">
-              Connect Wallet
-            </button>
+            <ConnectWalletButton />
           </div>
           <button
             className="md:hidden p-2"
@@ -36,7 +35,7 @@ export default function Layout({ children }) {
             <Link to="/submit" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Submit Project</Link>
             <Link to="/dashboard" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
             <Link to="/admin" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Admin</Link>
-            <button className="px-4 py-2 bg-amber-600 hover:bg-amber-500 rounded-full font-semibold w-fit">Connect Wallet</button>
+            <ConnectWalletButton className="w-fit" />
           </div>
         )}
       </header>

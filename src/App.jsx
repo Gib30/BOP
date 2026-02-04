@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { WalletProvider } from './context/WalletContext';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
@@ -8,6 +9,7 @@ import DashboardPage from './pages/DashboardPage';
 
 function App() {
   return (
+    <WalletProvider>
     <BrowserRouter>
       <Layout>
         <Routes>
@@ -19,6 +21,7 @@ function App() {
         </Routes>
       </Layout>
     </BrowserRouter>
+    </WalletProvider>
   );
 }
 

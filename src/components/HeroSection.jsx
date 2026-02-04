@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import { LOGO_PATH, BANNER_PATH } from '../lib/constants';
+import ConnectWalletButton from './ConnectWalletButton';
 
 export default function HeroSection() {
   return (
@@ -51,9 +52,7 @@ export default function HeroSection() {
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
-          <button className="px-8 py-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20 hover:border-amber-400/50 rounded-full font-semibold text-lg transition-all duration-300">
-            Connect Wallet
-          </button>
+          <ConnectWalletButton variant="outline" className="px-8 py-4 text-lg" />
         </div>
 
         <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto pt-12">
