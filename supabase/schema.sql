@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS projects (
   roadmap JSONB DEFAULT '[]',
   team JSONB DEFAULT '[]',
   status TEXT DEFAULT 'approved' CHECK (status IN ('pending', 'approved', 'rejected')),
+  submitted_by TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -54,8 +55,8 @@ ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Projects are viewable by everyone" ON projects
   FOR SELECT USING (true);
 
-CREATE POLICY "Anyone can insert projects (pending)" ON projects
-  FOR INSERT WITH CHECK (status = 'pending');
+CREATE POLICY "Anyone can insert projects" ON projects
+  FOR INSERT WITH CHECK (status IN ('pending', 'approved'));
 
 CREATE POLICY "Projects can be updated by admin" ON projects
   FOR UPDATE USING (true);

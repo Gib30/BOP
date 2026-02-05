@@ -34,7 +34,7 @@ export default function TokenCard({ token, copiedAddress, onCopyAddress, viewMod
             </h3>
             <span className="text-amber-400 font-mono text-sm font-semibold">${token.ticker}</span>
             <div className="flex gap-1.5">
-              {token.badges.slice(0, 2).map((badge, i) => (
+              {(token.badges || []).slice(0, 2).map((badge, i) => (
                 <span key={i} className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getBadgeClass(badge)}`}>
                   {badge}
                 </span>
@@ -46,11 +46,11 @@ export default function TokenCard({ token, copiedAddress, onCopyAddress, viewMod
         <div className="hidden sm:flex items-center gap-8 flex-shrink-0">
           <div className="text-center">
             <div className="text-neutral-500 text-xs">Holders</div>
-            <div className="text-white font-bold">{token.holders}</div>
+            <div className="text-white font-bold">{token.holders ?? '0'}</div>
           </div>
           <div className="text-center">
             <div className="text-neutral-500 text-xs">Trust Lines</div>
-            <div className="text-white font-bold">{token.trustLines}</div>
+            <div className="text-white font-bold">{token.trustLines ?? '0'}</div>
           </div>
           <div className="flex items-center gap-2">
             <code className="text-amber-400/80 text-sm font-mono">{shortenAddress(token.issuer)}</code>
@@ -72,7 +72,7 @@ export default function TokenCard({ token, copiedAddress, onCopyAddress, viewMod
       to={`/project/${token.id}`}
       className="group relative bg-gradient-to-br from-neutral-900/80 to-neutral-950/80 backdrop-blur-sm border border-neutral-800 hover:border-amber-900/50 rounded-3xl p-8 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-900/20 block min-w-0 overflow-hidden"
     >
-      {token.badges.includes('Featured') && (
+      {(token.badges || []).includes('Featured') && (
         <div className="absolute -top-3 -right-3 bg-gradient-to-br from-amber-500 to-amber-700 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
           <Award className="w-3 h-3" />
           FEATURED
@@ -88,7 +88,7 @@ export default function TokenCard({ token, copiedAddress, onCopyAddress, viewMod
           <div className="flex items-center gap-3">
             <span className="text-amber-400 font-mono text-lg font-semibold">${token.ticker}</span>
             <div className="flex gap-1.5">
-              {token.badges.slice(0, 2).map((badge, i) => (
+              {(token.badges || []).slice(0, 2).map((badge, i) => (
                 <span key={i} className={`px-2.5 py-1 text-xs font-semibold rounded-full ${getBadgeClass(badge)}`}>
                   {badge}
                 </span>
@@ -105,11 +105,11 @@ export default function TokenCard({ token, copiedAddress, onCopyAddress, viewMod
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-black/40 rounded-xl p-4 border border-neutral-800">
           <div className="text-neutral-500 text-xs mb-1 uppercase tracking-wide">Holders</div>
-          <div className="text-white font-bold text-xl">{token.holders}</div>
+          <div className="text-white font-bold text-xl">{token.holders ?? '0'}</div>
         </div>
         <div className="bg-black/40 rounded-xl p-4 border border-neutral-800">
           <div className="text-neutral-500 text-xs mb-1 uppercase tracking-wide">Trust Lines</div>
-          <div className="text-white font-bold text-xl">{token.trustLines}</div>
+          <div className="text-white font-bold text-xl">{token.trustLines ?? '0'}</div>
         </div>
       </div>
 
@@ -130,11 +130,11 @@ export default function TokenCard({ token, copiedAddress, onCopyAddress, viewMod
         <div className="flex items-center gap-4 text-sm text-neutral-500">
           <span className="flex items-center gap-1.5">
             <Eye className="w-4 h-4" />
-            {token.views.toLocaleString()}
+            {(token.views ?? 0).toLocaleString()}
           </span>
           <span className="flex items-center gap-1.5">
             <MessageCircle className="w-4 h-4" />
-            {token.comments}
+            {token.comments ?? 0}
           </span>
         </div>
         <span className="text-amber-400 hover:text-amber-300 font-semibold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">

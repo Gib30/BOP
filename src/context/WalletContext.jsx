@@ -70,6 +70,35 @@ export function WalletProvider({ children }) {
     }
   }, [xumm]);
 
+  const requestPayment = useCallback(async (destination, amountDrops = '1000000', memo = '') => {
+    if (!xumm) return { ok: false, error: 'XUMM not ready', qrUrl: null };
+    try {
+      const txjson = {
+        TransactionType: 'Payment',
+        Destination: destination,
+        Amount: String(amountDrops),
+      };
+      if (memo) {
+        const hex = Array.from(new TextEncoder().encode(memo))
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+        txjson.Memos = [{ Memo: { MemoData: hex } }];
+      }
+      const { created, resolved } = await xumm.payload.createAndSubscribe(
+        { txjson, options: { submit: true } },
+        () => {}
+      );
+      return {
+        ok: true,
+        qrUrl: created?.next?.always ?? null,
+        qrPng: created?.refs?.qr_png ?? null,
+        resolved,
+      };
+    } catch (e) {
+      return { ok: false, error: e?.message || 'Payment failed', qrUrl: null };
+    }
+  }, [xumm]);
+
   const value = {
     account,
     loading,
@@ -79,6 +108,7 @@ export function WalletProvider({ children }) {
     isConnected: !!account,
     hasXumm: !!apiKey,
     sdkReady: !!xumm,
+    requestPayment,
   };
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;

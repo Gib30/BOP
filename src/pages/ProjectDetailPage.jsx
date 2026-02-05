@@ -1,11 +1,13 @@
 import { useParams, Link } from 'react-router-dom';
 import { Copy, Check, ExternalLink, Globe, Twitter, MessageCircle } from 'lucide-react';
 import { getTrustTokenUrl, getDexUrl } from '../lib/xrpl';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import MediaGallery from '../components/MediaGallery';
 import CommentSection from '../components/CommentSection';
 import { useProjects } from '../hooks/useProjects';
+import { useTokenStats } from '../hooks/useTokenStats';
+import { supabase, hasSupabase } from '../lib/supabase';
 import { BANNER_PATH, LOGO_PATH } from '../lib/constants';
 
 const XRPSCAN_ISSUER = 'https://xrpscan.com/account/';
@@ -16,6 +18,15 @@ export default function ProjectDetailPage() {
   const { projects, loading } = useProjects();
 
   const token = projects.find((t) => t.id === parseInt(id, 10));
+  const lastIncrementedId = useRef(null);
+  const { stats: liveStats } = useTokenStats(token?.ticker, token?.issuer);
+
+  // Increment view count once per project visit
+  useEffect(() => {
+    if (!token?.id || !hasSupabase || lastIncrementedId.current === token.id) return;
+    lastIncrementedId.current = token.id;
+    supabase.from('projects').update({ views: (token.views || 0) + 1 }).eq('id', token.id).then(() => {});
+  }, [token?.id, token?.views]);
 
   const copyAddress = (address, key) => {
     navigator.clipboard.writeText(address);
@@ -129,10 +140,10 @@ export default function ProjectDetailPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {[
-          { label: 'Supply', value: token.supply },
-          { label: 'Holders', value: token.holders },
-          { label: 'Trust Lines', value: token.trustLines },
-          { label: 'Views', value: token.views.toLocaleString() },
+          { label: 'Supply', value: liveStats?.supply ?? token.supply ?? '—' },
+          { label: 'Holders', value: liveStats?.holders != null ? Number(liveStats.holders).toLocaleString() : (token.holders ?? '0') },
+          { label: 'Trust Lines', value: liveStats?.trustlines != null ? Number(liveStats.trustlines).toLocaleString() : (token.trustLines ?? '0') },
+          { label: 'Views', value: (token.views ?? 0).toLocaleString() },
         ].map((stat, i) => (
           <div key={i} className="bg-black/40 border border-neutral-800 rounded-2xl p-5 text-center">
             <div className="text-neutral-500 text-xs uppercase tracking-wider mb-2">{stat.label}</div>

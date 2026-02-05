@@ -1,6 +1,6 @@
-# BOP – Setup Instructions (Your Action Required)
+# Your Tasks (Manual Steps)
 
-Complete these steps to finish MVP deployment.
+These require your login/credentials. Do these after the code changes are in place.
 
 ---
 
@@ -10,13 +10,13 @@ Go to **Supabase Dashboard → SQL Editor** and run each script.
 
 ### 1.1 Add submitted_by column (for Dashboard)
 
+If your `projects` table doesn't have `submitted_by` yet:
+
 ```sql
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS submitted_by TEXT;
 ```
 
 ### 1.2 Comments count trigger
-
-Run the contents of `supabase/migrations/20260203000000_comments_count_trigger.sql`:
 
 ```sql
 CREATE OR REPLACE FUNCTION update_project_comments_count()
@@ -41,9 +41,7 @@ AFTER DELETE ON comments FOR EACH ROW
 EXECUTE FUNCTION update_project_comments_count();
 ```
 
-### 1.3 Storage bucket
-
-Run the contents of `supabase/migrations/20260203000001_storage_project_media.sql`:
+### 1.3 Storage bucket (for media uploads)
 
 ```sql
 INSERT INTO storage.buckets (id, name, public)
@@ -61,7 +59,7 @@ If the bucket insert fails, create it manually: **Storage → New bucket** → n
 
 ### 1.4 RLS for direct insert (if needed)
 
-If project insert fails with `status = 'approved'`, run:
+If project insert fails with `status = 'approved'`:
 
 ```sql
 DROP POLICY IF EXISTS "Anyone can insert projects (pending)" ON projects;
@@ -81,63 +79,43 @@ In **Vercel → Project → Settings → Environment Variables**, add:
 | `VITE_SUPABASE_ANON_KEY` | Yes | Supabase anon key |
 | `ADMIN_PASSWORD` | Yes | Password for /admin |
 | `VITE_XUMM_API_KEY` | Optional | For Connect Wallet (from apps.xumm.dev) |
-| `VITE_TREASURY_WALLET` | Optional | XRPL address for submission fees (1 XRP) |
+| `VITE_TREASURY_WALLET` | Optional | XRPL address for 1 XRP submission fee |
 
 ---
 
-## 3. XUMM Developer Console (optional)
+## 3. XUMM Developer Console
 
-If using Connect Wallet:
+If using Connect Wallet or payment-on-submit:
 
 1. Go to [apps.xumm.dev](https://apps.xumm.dev)
 2. Add **Origin/Redirect URIs**:
-   - `https://bop-green.vercel.app` (production)
-   - `http://localhost:5173` (dev)
+   - Production: `https://your-app.vercel.app`
+   - Dev: `http://localhost:5173` (or whatever port Vite uses)
 
 ---
 
-## 4. Keep-alive
+## 4. Create treasury wallet (for 1 XRP fee)
+
+If you want to charge 1 XRP on submit:
+
+1. Create a new XRPL address (e.g. with XUMM or xrpl.js)
+2. Add it to Vercel env as `VITE_TREASURY_WALLET`
+3. For testing, use Testnet: get test XRP from [faucet.xrpl.org](https://faucet.xrpl.org)
+
+---
+
+## 5. UptimeRobot (keep-alive)
 
 1. Sign up at [UptimeRobot](https://uptimerobot.com) (free)
 2. Add monitor:
-   - **URL:** `https://bop-green.vercel.app/api/keepalive`
+   - **URL:** `https://your-app.vercel.app/api/keepalive`
    - **Interval:** 5 minutes
    - **Type:** HTTP(s)
 
 ---
 
-## 5. Deploy
+## 6. Deploy
 
 1. Push to GitHub
 2. Vercel auto-deploys
-3. Verify: submit a project with media, post a comment, connect wallet
-
----
-
-## 6. Local .env
-
-Create `.env` from `.env.example` with your values for local development.
-
----
-
-## 7. XUMM payment-on-submit (optional)
-
-Charge 1 XRP when users submit a project; payment goes to a treasury wallet.
-
-### 7.1 Implementation
-
-1. **Treasury wallet** – Create a dedicated XRPL address for submission fees.
-2. **Submit flow** – On Submit:
-   - Validate form (name, ticker, issuer).
-   - Create XUMM payload with Payment tx: 1 XRP → treasury.
-   - Show QR / "Open in XUMM" link.
-   - On sign success → upload media → insert to Supabase.
-   - On reject → show error, do not insert.
-3. **Env** – Add `VITE_TREASURY_WALLET` (destination address).
-4. **XUMM payload** – Use `xumm.payload.createAndSubscribe()` with `txjson: { TransactionType: 'Payment', Destination, Amount: '1000000' }` (1 XRP in drops).
-
-### 7.2 Testnet for development
-
-- **Faucets**: [faucet.xrpl.org](https://faucet.xrpl.org) or [faucet.altnet.rippletest.net](https://faucet.altnet.rippletest.net/).
-- **Testnet WebSocket**: `wss://s.altnet.rippletest.net:51233`
-- **XUMM** – Configure app for Testnet in [XUMM Developer Console](https://apps.xumm.dev) to test with test XRP.
+3. Verify: submit a project, post a comment, connect wallet, check Dashboard

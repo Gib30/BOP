@@ -1,10 +1,15 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronLeft, Upload, X } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Upload, X, QrCode, ExternalLink } from 'lucide-react';
 import { supabase, hasSupabase } from '../lib/supabase';
+import { useWallet } from '../context/WalletContext';
+
+const TREASURY = import.meta.env.VITE_TREASURY_WALLET;
+const SUBMIT_FEE_DROPS = '1000000'; // 1 XRP
 
 const STEPS = ['Token Basics', 'Description & Links', 'Media Upload', 'Preview & Submit'];
 
 export default function SubmitPage() {
+  const { account, requestPayment, hasXumm } = useWallet();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     name: '',
@@ -25,6 +30,8 @@ export default function SubmitPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [paymentPending, setPaymentPending] = useState(false);
+  const [paymentPayload, setPaymentPayload] = useState(null);
 
   const updateForm = (updates) => setForm((f) => ({ ...f, ...updates }));
 
@@ -68,17 +75,9 @@ export default function SubmitPage() {
     return { urls: uploadedUrls, logoUrl, bannerUrl };
   };
 
-  const handleSubmit = async () => {
-    setError('');
-    if (!form.name || !form.ticker || !form.issuer) {
-      setError('Name, ticker, and issuer are required.');
-      return;
-    }
-    setSubmitting(true);
-    if (hasSupabase) {
-      try {
-        const { urls, logoUrl, bannerUrl } = await uploadMediaFiles(form.mediaFiles);
-        const { error: err } = await supabase.from('projects').insert({
+  const doInsert = async () => {
+    const { urls, logoUrl, bannerUrl } = await uploadMediaFiles(form.mediaFiles);
+    const { error: err } = await supabase.from('projects').insert({
           name: form.name,
           ticker: form.ticker,
           issuer: form.issuer,
@@ -95,14 +94,60 @@ export default function SubmitPage() {
           logo_url: logoUrl,
           banner_url: bannerUrl,
           media_urls: urls,
+          holders: '0',
+          trust_lines: '0',
+          supply: '—',
+          badges: ['New'],
+          submitted_by: account || null,
         });
-        if (err) throw err;
-        setSubmitted(true);
-      } catch (e) {
-        setError(e.message);
-      }
-    } else {
+    if (err) throw err;
+    setSubmitted(true);
+  };
+
+  const handleSubmit = async () => {
+    setError('');
+    if (!form.name || !form.ticker || !form.issuer) {
+      setError('Name, ticker, and issuer are required.');
+      return;
+    }
+    if (!hasSupabase) {
       setError('Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable submissions.');
+      return;
+    }
+
+    const needsPayment = TREASURY && hasXumm;
+
+    if (needsPayment && !paymentPayload) {
+      setSubmitting(true);
+      const result = await requestPayment(TREASURY, SUBMIT_FEE_DROPS, `BOP: ${form.name}`);
+      setSubmitting(false);
+      if (!result.ok) {
+        setError(result.error || 'Payment failed');
+        return;
+      }
+      setPaymentPending(true);
+      setPaymentPayload(result);
+      try {
+        const payload = await result.resolved;
+        setPaymentPending(false);
+        setPaymentPayload(null);
+        if (payload && !payload.signed) {
+          setError('Payment was rejected or cancelled.');
+          return;
+        }
+      } catch (e) {
+        setPaymentPending(false);
+        setPaymentPayload(null);
+        setError('Payment was rejected or cancelled.');
+        return;
+      }
+    }
+
+    setSubmitting(true);
+    try {
+      await doInsert();
+    } catch (e) {
+      setError(e.message);
     }
     setSubmitting(false);
   };
@@ -135,6 +180,29 @@ export default function SubmitPage() {
           </div>
         ))}
       </div>
+
+      {paymentPending && paymentPayload && (
+        <div className="mb-6 p-6 bg-amber-900/20 border border-amber-600/50 rounded-2xl text-center">
+          <QrCode className="w-12 h-12 text-amber-400 mx-auto mb-4" />
+          <h3 className="font-display text-xl font-bold text-white mb-2">Pay 1 XRP to Submit</h3>
+          <p className="text-neutral-400 mb-4">Scan with XUMM or open the link below</p>
+          {paymentPayload.qrPng && (
+            <img src={paymentPayload.qrPng} alt="XUMM QR" className="mx-auto mb-4 w-48 h-48 bg-white rounded-xl p-2" />
+          )}
+          {paymentPayload.qrUrl && (
+            <a
+              href={paymentPayload.qrUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-xl font-semibold text-white"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Open in XUMM
+            </a>
+          )}
+          <p className="text-neutral-500 text-sm mt-4">Waiting for payment...</p>
+        </div>
+      )}
 
       {error && (
         <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-300">
