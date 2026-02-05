@@ -1,71 +1,13 @@
 # Your Tasks (Manual Steps)
 
-These require your login/credentials. Do these after the code changes are in place.
+Code is pushed. Vercel will auto-deploy. Do these to finish setup.
 
 ---
 
-## 1. Supabase SQL (run in SQL Editor)
+## 1. Supabase SQL
 
-Go to **Supabase Dashboard → SQL Editor** and run each script.
-
-### 1.1 Add submitted_by column (for Dashboard)
-
-If your `projects` table doesn't have `submitted_by` yet:
-
-```sql
-ALTER TABLE projects ADD COLUMN IF NOT EXISTS submitted_by TEXT;
-```
-
-### 1.2 Comments count trigger
-
-```sql
-CREATE OR REPLACE FUNCTION update_project_comments_count()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF TG_OP = 'INSERT' THEN
-    UPDATE projects SET comments_count = comments_count + 1 WHERE id = NEW.project_id;
-    RETURN NEW;
-  ELSIF TG_OP = 'DELETE' THEN
-    UPDATE projects SET comments_count = comments_count - 1 WHERE id = OLD.project_id;
-    RETURN OLD;
-  END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER increment_comments_count
-AFTER INSERT ON comments FOR EACH ROW
-EXECUTE FUNCTION update_project_comments_count();
-
-CREATE TRIGGER decrement_comments_count
-AFTER DELETE ON comments FOR EACH ROW
-EXECUTE FUNCTION update_project_comments_count();
-```
-
-### 1.3 Storage bucket (for media uploads)
-
-```sql
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('project-media', 'project-media', true)
-ON CONFLICT (id) DO NOTHING;
-
-CREATE POLICY "Public read access" ON storage.objects FOR SELECT TO public
-USING (bucket_id = 'project-media');
-
-CREATE POLICY "Anonymous insert access" ON storage.objects FOR INSERT TO anon
-WITH CHECK (bucket_id = 'project-media');
-```
-
-If the bucket insert fails, create it manually: **Storage → New bucket** → name: `project-media`, set **Public**.
-
-### 1.4 RLS for direct insert (if needed)
-
-If project insert fails with `status = 'approved'`:
-
-```sql
-DROP POLICY IF EXISTS "Anyone can insert projects (pending)" ON projects;
-CREATE POLICY "Anyone can insert projects" ON projects
-  FOR INSERT WITH CHECK (status IN ('pending', 'approved'));
-```
+Open **Supabase Dashboard → SQL Editor → New query**, paste the contents of `run-supabase-migrations.sql`, click **Run**.  
+If the storage bucket fails, create it manually: **Storage → New bucket** → name `project-media`, set **Public**.
 
 ---
 
@@ -96,11 +38,9 @@ If using Connect Wallet or payment-on-submit:
 
 ## 4. Create treasury wallet (for 1 XRP fee)
 
-If you want to charge 1 XRP on submit:
+Run: `node scripts/generate-treasury-wallet.js`
 
-1. Create a new XRPL address (e.g. with XUMM or xrpl.js)
-2. Add it to Vercel env as `VITE_TREASURY_WALLET`
-3. For testing, use Testnet: get test XRP from [faucet.xrpl.org](https://faucet.xrpl.org)
+Copy the address to Vercel env as `VITE_TREASURY_WALLET`. Fund it at [faucet.xrpl.org](https://faucet.xrpl.org) (Testnet) or send real XRP (Mainnet). **Keep the secret safe** if you need to move funds later.
 
 ---
 
@@ -114,8 +54,6 @@ If you want to charge 1 XRP on submit:
 
 ---
 
-## 6. Deploy
+## 6. Verify
 
-1. Push to GitHub
-2. Vercel auto-deploys
-3. Verify: submit a project, post a comment, connect wallet, check Dashboard
+Deploy is automatic (already pushed). Check: submit a project, post a comment, connect wallet, Dashboard.
