@@ -1,6 +1,8 @@
-# BOP – Setup Instructions (Your Action Required)
+# BOP – Setup Instructions
 
-Complete these steps to finish MVP deployment.
+**Current setup:** See [PROJECT_STATUS.md](PROJECT_STATUS.md). Production is live; XUMM, treasury, testnet, and submit flow are done.
+
+Below: reference for initial setup or new environments.
 
 ---
 
@@ -87,12 +89,12 @@ In **Vercel → Project → Settings → Environment Variables**, add:
 
 ## 3. XUMM Developer Console (optional)
 
-If using Connect Wallet:
+**Already done for production.** If using Connect Wallet:
 
 1. Go to [apps.xumm.dev](https://apps.xumm.dev)
 2. Add **Origin/Redirect URIs**:
-   - `https://bop-green.vercel.app` (production)
-   - `http://localhost:5173` (dev)
+   - `https://bop-green.vercel.app` (production) – configured
+   - `http://localhost:5173` (dev) – only if testing locally
 
 ---
 
@@ -120,11 +122,11 @@ Create `.env` from `.env.example` with your values for local development.
 
 ---
 
-## 7. XUMM payment-on-submit (optional)
+## 7. XUMM payment-on-submit
 
-Charge 1 XRP when users submit a project; payment goes to a treasury wallet.
+**Implemented.** Charge 1 XRP when users submit a project; payment goes to treasury. Requires `VITE_TREASURY_WALLET`, `VITE_XUMM_API_KEY`, and Xaman on testnet when `VITE_XRPL_NETWORK=testnet`.
 
-### 7.1 Implementation
+### 7.1 Implementation details
 
 1. **Treasury wallet** – Create a dedicated XRPL address for submission fees.
 2. **Submit flow** – On Submit:

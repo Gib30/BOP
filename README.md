@@ -2,6 +2,8 @@
 
 XRPL token directory for the Board of Peace community. Built with React, Vite, Tailwind, and Supabase.
 
+**Project status:** [PROJECT_STATUS.md](PROJECT_STATUS.md) – what's done, what's optional.
+
 ## Setup
 
 1. **Install dependencies**
