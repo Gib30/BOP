@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { LOGO_PATH, BANNER_PATH } from '../lib/constants';
 
 export default function HeroSection() {
@@ -41,17 +41,6 @@ export default function HeroSection() {
           Discover verified projects building harmony through art, cryptocurrency, and collective impact on the XRP Ledger
         </p>
 
-        <div className="flex items-center justify-center pt-4">
-          <Link
-            to="/#directory"
-            className="group px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 rounded-full font-semibold text-lg shadow-2xl shadow-amber-900/50 transition-all duration-300 hover:scale-105"
-          >
-            <span className="flex items-center gap-2">
-              Explore Directory
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Link>
-        </div>
 
         <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto pt-12">
           {[
@@ -72,7 +61,7 @@ export default function HeroSection() {
       </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-        <a href="#directory" className="flex flex-col items-center gap-2 text-amber-400/60">
+        <a href="#directory" className="flex flex-col items-center gap-2 text-amber-400/60 hover:text-amber-400/80 transition-colors">
           <span className="text-xs uppercase tracking-widest">Scroll to explore</span>
           <ChevronDown className="w-6 h-6" />
         </a>
