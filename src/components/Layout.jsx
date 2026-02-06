@@ -16,10 +16,8 @@ export default function Layout({ children }) {
             <img src={LOGO_PATH} alt="Board of Peace" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-amber-600/50 flex-shrink-0" />
             <span className="font-display text-base sm:text-xl font-bold text-white truncate">Board of Peace</span>
           </Link>
-          <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-shrink-0">
-            <Link to="/submit" className="text-neutral-300 hover:text-amber-400 transition-colors">Submit Project</Link>
-            <Link to="/dashboard" className="text-neutral-300 hover:text-amber-400 transition-colors">Dashboard</Link>
-            <Link to="/admin" className="text-neutral-300 hover:text-amber-400 transition-colors">Admin</Link>
+          <div className="hidden md:flex items-center gap-2 flex-shrink-0">
+            <NotificationBell />
             <ConnectWalletButton />
           </div>
           <button
@@ -31,9 +29,6 @@ export default function Layout({ children }) {
         </nav>
         {mobileMenuOpen && (
           <div className="md:hidden px-6 py-4 border-t border-neutral-800 flex flex-col gap-4">
-            <Link to="/submit" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Submit Project</Link>
-            <Link to="/dashboard" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
-            <Link to="/admin" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Admin</Link>
             <div className="flex items-center gap-2">
               <NotificationBell />
               <ConnectWalletButton className="w-fit" />
