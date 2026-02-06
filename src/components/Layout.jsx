@@ -11,12 +11,12 @@ export default function Layout({ children }) {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white overflow-x-hidden">
       <header className="fixed top-0 left-0 right-0 z-40 bg-black/80 backdrop-blur-md border-b border-neutral-800">
-        <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={LOGO_PATH} alt="Board of Peace" className="w-10 h-10 rounded-full object-cover border border-amber-600/50" />
-            <span className="font-display text-xl font-bold text-white">Board of Peace</span>
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-4 min-w-0">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-shrink">
+            <img src={LOGO_PATH} alt="Board of Peace" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-amber-600/50 flex-shrink-0" />
+            <span className="font-display text-base sm:text-xl font-bold text-white truncate">Board of Peace</span>
           </Link>
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-shrink-0">
             <Link to="/#directory" className="text-neutral-300 hover:text-amber-400 transition-colors">Directory</Link>
             <Link to="/submit" className="text-neutral-300 hover:text-amber-400 transition-colors">Submit Project</Link>
             <Link to="/dashboard" className="text-neutral-300 hover:text-amber-400 transition-colors">Dashboard</Link>

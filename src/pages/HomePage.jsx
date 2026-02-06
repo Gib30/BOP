@@ -112,15 +112,15 @@ export default function HomePage() {
       <HeroSection />
 
       {featuredProjects.length > 0 && (
-        <section className="py-12 px-6 bg-neutral-950 border-b border-neutral-800">
+        <section className="py-8 sm:py-12 px-4 sm:px-6 bg-neutral-950 border-b border-neutral-800 overflow-hidden">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <Award className="w-6 h-6 text-amber-400" />
-              <h2 className="font-display text-2xl font-bold text-white">Featured Projects</h2>
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
+              <Award className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 flex-shrink-0" />
+              <h2 className="font-display text-xl sm:text-2xl font-bold text-white">Featured Projects</h2>
             </div>
-            <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth md:scrollbar-thin md:scrollbar-thumb-neutral-700 md:scrollbar-track-transparent -mx-4 px-4 md:mx-0 md:px-0">
+            <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0">
               {featuredProjects.map((token) => (
-                <div key={token.id} className="flex-shrink-0 w-80 snap-center">
+                <div key={token.id} className="flex-shrink-0 w-[280px] sm:w-72 lg:w-80 snap-center">
                   <TokenCard
                     token={token}
                     copiedAddress={copiedAddress}
@@ -134,22 +134,22 @@ export default function HomePage() {
         </section>
       )}
 
-      <section id="directory" className="relative py-20 px-6 bg-gradient-to-b from-black to-neutral-950 scroll-mt-20 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto flex gap-8 overflow-hidden">
-          <div className="flex-1 min-w-0 overflow-hidden">
+      <section id="directory" className="relative py-12 sm:py-20 px-4 sm:px-6 bg-gradient-to-b from-black to-neutral-950 scroll-mt-20 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col xl:flex-row gap-6 xl:gap-8 overflow-hidden">
+          <div className="flex-1 min-w-0 overflow-hidden w-full">
         {loading && (
           <div className="py-12">
             <LoadingSkeleton count={6} viewMode={viewMode} />
           </div>
         )}
         {!loading && <div>
-          <div className="text-center mb-12 space-y-4">
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <Sparkles className="w-6 h-6 text-amber-400" />
-              <span className="text-amber-400 uppercase tracking-widest text-sm font-semibold">Directory</span>
-              <Sparkles className="w-6 h-6 text-amber-400" />
+          <div className="text-center mb-8 sm:mb-12 space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 flex-shrink-0" />
+              <span className="text-amber-400 uppercase tracking-widest text-xs sm:text-sm font-semibold">Directory</span>
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 flex-shrink-0" />
             </div>
-            <h2 className="font-display text-5xl md:text-6xl font-bold text-white">
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white px-2">
               Verified <span className="text-amber-400">XRPL</span> Tokens
             </h2>
             <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
@@ -189,7 +189,7 @@ export default function HomePage() {
           </div>
 
           {viewMode === 'grid' ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 min-w-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 min-w-0">
               {paginated.map((token) => (
                 <TokenCard
                   key={token.id}

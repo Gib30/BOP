@@ -10,7 +10,7 @@ export default function Sidebar() {
   const trending = [...projects].sort((a, b) => b.views + b.comments - (a.views + a.comments)).slice(0, 5);
 
   return (
-    <aside className="hidden lg:block w-72 flex-shrink-0">
+    <aside className="hidden xl:block w-64 xl:w-72 flex-shrink-0 overflow-hidden">
       <div className="sticky top-24 space-y-8">
         <div>
           <h3 className="font-display text-lg font-bold text-white mb-4 flex items-center gap-2">

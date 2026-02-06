@@ -2,23 +2,23 @@ import { Search } from 'lucide-react';
 
 export default function SearchBar({ value, onChange, sortBy, onSortChange, category, onCategoryChange, verifiedOnly, onVerifiedOnlyChange }) {
   return (
-    <div className="sticky top-16 z-30 py-4 bg-neutral-950/95 backdrop-blur-md border-b border-neutral-800 mb-8 max-w-full">
-      <div className="w-full max-w-4xl space-y-4">
-        <div className="relative">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+    <div className="sticky top-16 z-30 py-3 sm:py-4 bg-neutral-950/95 backdrop-blur-md border-b border-neutral-800 mb-6 sm:mb-8 max-w-full overflow-hidden">
+      <div className="w-full max-w-4xl space-y-3 sm:space-y-4 min-w-0">
+        <div className="relative min-w-0">
+          <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-neutral-500 flex-shrink-0" />
           <input
             type="text"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder="Search by name, ticker, or issuer address..."
-            className="w-full pl-14 pr-6 py-5 bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 hover:border-amber-900/50 focus:border-amber-700 rounded-2xl text-white placeholder-neutral-500 focus:outline-none transition-colors text-lg"
+            placeholder="Search by name, ticker, or issuer..."
+            className="w-full min-w-0 pl-11 sm:pl-14 pr-4 sm:pr-6 py-3 sm:py-5 bg-neutral-900/50 backdrop-blur-sm border border-neutral-800 hover:border-amber-900/50 focus:border-amber-700 rounded-xl sm:rounded-2xl text-white placeholder-neutral-500 focus:outline-none transition-colors text-base sm:text-lg"
           />
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <select
             value={sortBy}
             onChange={(e) => onSortChange(e.target.value)}
-            className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-amber-700"
+            className="px-3 sm:px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg sm:rounded-xl text-white focus:outline-none focus:border-amber-700 text-sm sm:text-base min-w-0"
           >
             <option value="trending">Trending</option>
             <option value="rising">Rising</option>
@@ -31,7 +31,7 @@ export default function SearchBar({ value, onChange, sortBy, onSortChange, categ
           <select
             value={category}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-amber-700"
+            className="px-3 sm:px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg sm:rounded-xl text-white focus:outline-none focus:border-amber-700 text-sm sm:text-base min-w-0"
           >
             <option value="">All Categories</option>
             <option value="DeFi">DeFi</option>
