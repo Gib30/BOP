@@ -422,7 +422,7 @@ export default function SubmitPage() {
 
       <div className="flex justify-between mt-10">
         <button
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          onClick={() => { setError(''); setStep((s) => Math.max(0, s - 1)); }}
           disabled={step === 0}
           className="px-6 py-3 bg-neutral-800 disabled:opacity-50 rounded-xl font-semibold text-white hover:bg-neutral-700 transition-colors flex items-center gap-2"
         >
@@ -430,7 +430,7 @@ export default function SubmitPage() {
         </button>
         {step < STEPS.length - 1 ? (
           <button
-            onClick={() => setStep((s) => s + 1)}
+            onClick={() => { setError(''); setStep((s) => s + 1); }}
             className="px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-xl font-semibold text-white transition-colors flex items-center gap-2"
           >
             Next <ChevronRight className="w-5 h-5" />
