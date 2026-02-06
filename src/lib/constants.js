@@ -32,6 +32,7 @@ export const MOCK_TOKENS = [
       { title: "Q3 2024 - Expansion", description: "NFT collection and art collaborations." },
     ],
     team: [{ name: "Potheads XRP", role: "Founder", avatar: null }],
+    createdAt: "2024-01-15T00:00:00Z",
   },
   {
     id: 2,
@@ -58,6 +59,7 @@ export const MOCK_TOKENS = [
     mediaUrls: [],
     roadmap: [],
     team: [],
+    createdAt: "2025-01-20T00:00:00Z",
   },
   {
     id: 3,
@@ -84,6 +86,7 @@ export const MOCK_TOKENS = [
     mediaUrls: [],
     roadmap: [],
     team: [],
+    createdAt: "2024-06-10T00:00:00Z",
   },
 ];
 

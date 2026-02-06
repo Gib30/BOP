@@ -21,6 +21,8 @@ export default function SearchBar({ value, onChange, sortBy, onSortChange, categ
             className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-xl text-white focus:outline-none focus:border-amber-700"
           >
             <option value="trending">Trending</option>
+            <option value="rising">Rising</option>
+            <option value="verified_first">Verified First</option>
             <option value="views">Most Views</option>
             <option value="comments">Most Comments</option>
             <option value="newest">Newest</option>

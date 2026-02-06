@@ -27,6 +27,10 @@ supabase/.temp/
 *.sln
 *.sw?
 
+# Playwright
+playwright-report/
+test-results/
+
 # Local docs (not part of app)
 brainDump.md
 board-of-peace-redesign.jsx

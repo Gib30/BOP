@@ -13,6 +13,13 @@ function getBadgeClass(badge) {
     case 'OG': return 'bg-purple-500/20 text-purple-300 border border-purple-500/30';
     case 'New': return 'bg-green-500/20 text-green-300 border border-green-500/30';
     case 'Featured': return 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
+    case 'Meme': return 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30';
+    case 'DeFi': return 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
+    case 'NFT': return 'bg-violet-500/20 text-violet-300 border border-violet-500/30';
+    case 'Gaming': return 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+    case 'Charity': return 'bg-orange-500/20 text-orange-300 border border-orange-500/30';
+    case 'Utility': return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
+    case 'Social': return 'bg-sky-500/20 text-sky-300 border border-sky-500/30';
     default: return 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
   }
 }

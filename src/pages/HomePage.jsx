@@ -1,12 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Sparkles, LayoutGrid, List } from 'lucide-react';
+import { Sparkles, LayoutGrid, List, Award } from 'lucide-react';
 import HeroSection from '../components/HeroSection';
 import TokenCard from '../components/TokenCard';
 import SearchBar from '../components/SearchBar';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import LoadingSkeleton from '../components/LoadingSkeleton';
 import { useProjects } from '../hooks/useProjects';
+import { parseCount } from '../lib/utils';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -26,6 +28,11 @@ export default function HomePage() {
     setCopiedAddress(id);
     setTimeout(() => setCopiedAddress(null), 2000);
   };
+
+  const featuredProjects = useMemo(
+    () => rawProjects.filter((p) => (p.badges || []).includes('Featured')),
+    [rawProjects]
+  );
 
   const filteredAndSorted = useMemo(() => {
     let tokens = [...rawProjects];
@@ -58,10 +65,28 @@ export default function HomePage() {
         tokens.sort((a, b) => b.comments - a.comments);
         break;
       case 'newest':
-        tokens.sort((a, b) => b.id - a.id);
+        tokens.sort((a, b) => {
+          const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return db - da;
+        });
         break;
       case 'holders':
-        tokens.sort((a, b) => parseInt(b.holders.replace(/,/g, '')) - parseInt(a.holders.replace(/,/g, '')));
+        tokens.sort((a, b) => parseCount(b.holders) - parseCount(a.holders));
+        break;
+      case 'rising': {
+        const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+        tokens = tokens.filter((t) => t.createdAt && new Date(t.createdAt).getTime() > thirtyDaysAgo);
+        tokens.sort((a, b) => b.views + b.comments - (a.views + a.comments));
+        break;
+      }
+      case 'verified_first':
+        tokens.sort((a, b) => {
+          const aV = a.badges?.includes('Verified') ? 1 : 0;
+          const bV = b.badges?.includes('Verified') ? 1 : 0;
+          if (bV !== aV) return bV - aV;
+          return b.views + b.comments - (a.views + a.comments);
+        });
         break;
       default:
         tokens.sort((a, b) => b.views + b.comments - (a.views + a.comments));
@@ -86,19 +111,42 @@ export default function HomePage() {
     <>
       <HeroSection />
 
+      {featuredProjects.length > 0 && (
+        <section className="py-12 px-6 bg-neutral-950 border-b border-neutral-800">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center gap-3 mb-6">
+              <Award className="w-6 h-6 text-amber-400" />
+              <h2 className="font-display text-2xl font-bold text-white">Featured Projects</h2>
+            </div>
+            <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth md:scrollbar-thin md:scrollbar-thumb-neutral-700 md:scrollbar-track-transparent -mx-4 px-4 md:mx-0 md:px-0">
+              {featuredProjects.map((token) => (
+                <div key={token.id} className="flex-shrink-0 w-80 snap-center">
+                  <TokenCard
+                    token={token}
+                    copiedAddress={copiedAddress}
+                    onCopyAddress={copyAddress}
+                    viewMode="grid"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section id="directory" className="relative py-20 px-6 bg-gradient-to-b from-black to-neutral-950 scroll-mt-20 overflow-x-hidden">
         <div className="max-w-7xl mx-auto flex gap-8 overflow-hidden">
           <div className="flex-1 min-w-0 overflow-hidden">
         {loading && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="text-amber-400 font-display text-2xl">Loading...</div>
+          <div className="py-12">
+            <LoadingSkeleton count={6} viewMode={viewMode} />
           </div>
         )}
-        <div>
+        {!loading && <div>
           <div className="text-center mb-12 space-y-4">
             <div className="flex items-center justify-center gap-3 mb-3">
               <Sparkles className="w-6 h-6 text-amber-400" />
-              <span className="text-amber-400 uppercase tracking-widest text-sm font-semibold">Featured Projects</span>
+              <span className="text-amber-400 uppercase tracking-widest text-sm font-semibold">Directory</span>
               <Sparkles className="w-6 h-6 text-amber-400" />
             </div>
             <h2 className="font-display text-5xl md:text-6xl font-bold text-white">
@@ -193,7 +241,7 @@ export default function HomePage() {
               </button>
             </div>
           )}
-        </div>
+        </div>}
         </div>
         <Sidebar />
         </div>

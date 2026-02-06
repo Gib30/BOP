@@ -31,6 +31,7 @@ const vars = [
   { key: 'VITE_SUPABASE_URL', value: env.VITE_SUPABASE_URL },
   { key: 'VITE_SUPABASE_ANON_KEY', value: env.VITE_SUPABASE_ANON_KEY },
   { key: 'ADMIN_PASSWORD', value: env.ADMIN_PASSWORD || 'bop-admin-' + Date.now() },
+  { key: 'SUPABASE_SERVICE_ROLE_KEY', value: env.SUPABASE_SERVICE_ROLE_KEY },
   { key: 'VITE_XUMM_API_KEY', value: env.VITE_XUMM_API_KEY },
   { key: 'VITE_TREASURY_WALLET', value: env.VITE_TREASURY_WALLET },
 ].filter((v) => v.value);

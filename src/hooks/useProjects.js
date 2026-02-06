@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase, hasSupabase } from '../lib/supabase';
 import { MOCK_TOKENS } from '../lib/constants';
+import { enrichBadges } from '../lib/utils';
 
 export function useProjects() {
   const [projects, setProjects] = useState([]);
@@ -10,7 +11,15 @@ export function useProjects() {
   useEffect(() => {
     async function fetchProjects() {
       if (!hasSupabase) {
-        setProjects(MOCK_TOKENS.map((t) => ({ ...t, trust_lines: t.trustLines, comments_count: t.comments })));
+        setProjects(
+          MOCK_TOKENS.map((t) => ({
+            ...t,
+            trustLines: t.trustLines,
+            comments: t.comments ?? 0,
+            badges: enrichBadges(t.badges || [], t.category, t.createdAt),
+            createdAt: t.createdAt,
+          }))
+        );
         setLoading(false);
         return;
       }
@@ -35,7 +44,7 @@ export function useProjects() {
             supply: p.supply,
             holders: p.holders,
             trustLines: p.trust_lines,
-            badges: p.badges || [],
+            badges: enrichBadges(p.badges || [], p.category, p.created_at),
             category: p.category,
             views: p.views || 0,
             comments: p.comments_count || 0,
@@ -51,11 +60,20 @@ export function useProjects() {
             whitepaper: p.whitepaper,
             roadmap: p.roadmap || [],
             team: p.team || [],
+            createdAt: p.created_at,
           }))
         );
       } catch (e) {
         setError(e.message);
-        setProjects(MOCK_TOKENS.map((t) => ({ ...t, trust_lines: t.trustLines, comments_count: t.comments })));
+        setProjects(
+          MOCK_TOKENS.map((t) => ({
+            ...t,
+            trustLines: t.trustLines,
+            comments: t.comments ?? 0,
+            badges: enrichBadges(t.badges || [], t.category, t.createdAt),
+            createdAt: t.createdAt,
+          }))
+        );
       } finally {
         setLoading(false);
       }

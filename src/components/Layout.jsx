@@ -3,6 +3,7 @@ import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { LOGO_PATH } from '../lib/constants';
 import ConnectWalletButton from './ConnectWalletButton';
+import NotificationBell from './NotificationBell';
 
 export default function Layout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,7 +36,10 @@ export default function Layout({ children }) {
             <Link to="/submit" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Submit Project</Link>
             <Link to="/dashboard" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
             <Link to="/admin" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Admin</Link>
-            <ConnectWalletButton className="w-fit" />
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <ConnectWalletButton className="w-fit" />
+            </div>
           </div>
         )}
       </header>

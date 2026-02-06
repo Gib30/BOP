@@ -71,6 +71,18 @@ CREATE POLICY "Anyone can insert projects" ON projects
   FOR INSERT WITH CHECK (status IN ('pending', 'approved'));
 ```
 
+### 1.5 Notifications + triggers (optional)
+
+**Option A – CLI (recommended):** Add to `.env`: `VITE_SUPABASE_URL`, `SUPABASE_DB_PASSWORD` (from Supabase Dashboard → Project Settings → Database). Then run:
+
+```bash
+npm run db:migrate
+```
+
+**Option B – Manual:** Copy-paste `run-supabase-migrations.sql` into Supabase Dashboard → SQL Editor → Run.
+
+This adds: `notifications` table, triggers for approval/rejection and new comments.
+
 ---
 
 ## 2. Vercel environment variables
@@ -84,6 +96,7 @@ In **Vercel → Project → Settings → Environment Variables**, add:
 | `ADMIN_PASSWORD` | Yes | Password for /admin |
 | `VITE_XUMM_API_KEY` | Optional | For Connect Wallet (from apps.xumm.dev) |
 | `VITE_TREASURY_WALLET` | Optional | XRPL address for submission fees (1 XRP) |
+| `SUPABASE_SERVICE_ROLE_KEY` | For admin | Supabase service role key (comment delete). Never expose to client. |
 
 ---
 
@@ -114,19 +127,26 @@ In **Vercel → Project → Settings → Environment Variables**, add:
 2. Vercel auto-deploys
 3. Verify: submit a project with media, post a comment, connect wallet
 
+## 6. E2E tests (optional)
+
+```bash
+npx playwright install   # one-time: download browsers
+npm run test:e2e         # run smoke tests (starts dev server)
+```
+
 ---
 
-## 6. Local .env
+## 7. Local .env
 
 Create `.env` from `.env.example` with your values for local development.
 
 ---
 
-## 7. XUMM payment-on-submit
+## 8. XUMM payment-on-submit
 
 **Implemented.** Charge 1 XRP when users submit a project; payment goes to treasury. Requires `VITE_TREASURY_WALLET`, `VITE_XUMM_API_KEY`, and Xaman on testnet when `VITE_XRPL_NETWORK=testnet`.
 
-### 7.1 Implementation details
+### 8.1 Implementation details
 
 1. **Treasury wallet** – Create a dedicated XRPL address for submission fees.
 2. **Submit flow** – On Submit:
@@ -138,7 +158,7 @@ Create `.env` from `.env.example` with your values for local development.
 3. **Env** – Add `VITE_TREASURY_WALLET` (destination address).
 4. **XUMM payload** – Use `xumm.payload.createAndSubscribe()` with `txjson: { TransactionType: 'Payment', Destination, Amount: '1000000' }` (1 XRP in drops).
 
-### 7.2 Testnet for development
+### 8.2 Testnet for development
 
 - **Faucets**: [faucet.xrpl.org](https://faucet.xrpl.org) or [faucet.altnet.rippletest.net](https://faucet.altnet.rippletest.net/).
 - **Testnet WebSocket**: `wss://s.altnet.rippletest.net:51233`

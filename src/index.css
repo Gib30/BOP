@@ -41,3 +41,8 @@ html, body {
   background-color: #0A0A0A;
   overflow-x: hidden;
 }
+
+/* Touch-friendly scroll for featured carousel */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
