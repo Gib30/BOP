@@ -90,7 +90,15 @@ export function WalletProvider({ children }) {
       if (isTestnet) payload.NetworkID = 1; // Testnet
       const { created, resolved } = await xumm.payload.createAndSubscribe(
         payload,
-        () => {}
+        (eventMessage) => {
+          // Resolved promise only resolves when callback returns non-void or calls resolve()
+          if (eventMessage?.data && 'signed' in eventMessage.data) {
+            if (import.meta.env.DEV && import.meta.env.VITE_XRPL_NETWORK === 'testnet') {
+              console.log('[XUMM] Payload signed event:', eventMessage.data.signed);
+            }
+            return eventMessage;
+          }
+        }
       );
       return {
         ok: true,

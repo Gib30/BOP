@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronRight, ChevronLeft, Upload, X, QrCode, ExternalLink } from 'lucide-react';
 import { supabase, hasSupabase } from '../lib/supabase';
 import { useWallet } from '../context/WalletContext';
+import { isValidUrl, isValidIssuer, isValidTicker, validateOptionalUrl } from '../lib/validation';
 
 const TREASURY = import.meta.env.VITE_TREASURY_WALLET;
 const SUBMIT_FEE_DROPS = '1000000'; // 1 XRP
@@ -34,6 +35,35 @@ export default function SubmitPage() {
   const [paymentPayload, setPaymentPayload] = useState(null);
 
   const updateForm = (updates) => setForm((f) => ({ ...f, ...updates }));
+
+  const validateStep = (s) => {
+    if (s === 0) {
+      if (!form.name?.trim()) return 'Please fill in the project name.';
+      if (!form.ticker?.trim()) return 'Please fill in the token ticker.';
+      if (!form.issuer?.trim()) return 'Please fill in the issuer address.';
+      if (!isValidIssuer(form.issuer)) return 'Issuer must be a valid XRPL address (starts with r, 25–34 characters).';
+      if (!isValidTicker(form.ticker)) return 'Ticker must be 1–10 uppercase letters or numbers.';
+    }
+    if (s === 1) {
+      for (const [name, value] of [['Website', form.website], ['Twitter', form.twitter], ['Discord', form.discord], ['Telegram', form.telegram], ['GitHub', form.github], ['Whitepaper', form.whitepaper]]) {
+        const err = validateOptionalUrl(value, name);
+        if (err) return err;
+      }
+    }
+    return null;
+  };
+
+  const canAdvanceFromStep0 = form.name?.trim() && form.ticker?.trim() && form.issuer?.trim();
+
+  const handleNext = () => {
+    setError('');
+    const err = validateStep(step);
+    if (err) {
+      setError(err);
+      return;
+    }
+    setStep((s) => s + 1);
+  };
 
   const handleMediaDrop = (e) => {
     e.preventDefault();
@@ -110,6 +140,29 @@ export default function SubmitPage() {
       setError('Name, ticker, and issuer are required.');
       return;
     }
+    if (!isValidIssuer(form.issuer)) {
+      setError('Issuer must be a valid XRPL address (starts with r, 25–34 characters).');
+      return;
+    }
+    if (!isValidTicker(form.ticker)) {
+      setError('Ticker must be 1–10 uppercase letters or numbers.');
+      return;
+    }
+    const linkFields = [
+      ['website', form.website],
+      ['Twitter', form.twitter],
+      ['Discord', form.discord],
+      ['Telegram', form.telegram],
+      ['GitHub', form.github],
+      ['Whitepaper', form.whitepaper],
+    ];
+    for (const [name, value] of linkFields) {
+      const err = validateOptionalUrl(value, name);
+      if (err) {
+        setError(err);
+        return;
+      }
+    }
     if (!hasSupabase) {
       setError('Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable submissions.');
       return;
@@ -131,13 +184,20 @@ export default function SubmitPage() {
         const payload = await result.resolved;
         setPaymentPending(false);
         setPaymentPayload(null);
-        if (payload && !payload.signed) {
+        const signed = payload?.signed ?? payload?.data?.signed;
+        if (import.meta.env.DEV && import.meta.env.VITE_XRPL_NETWORK === 'testnet') {
+          console.log('[BOP] Payment resolved:', { signed, payload: payload?.data ?? payload });
+        }
+        if (!payload || signed === false) {
           setError('Payment was rejected or cancelled.');
           return;
         }
       } catch (e) {
         setPaymentPending(false);
         setPaymentPayload(null);
+        if (import.meta.env.DEV && import.meta.env.VITE_XRPL_NETWORK === 'testnet') {
+          console.error('[BOP] Payment resolve error:', e);
+        }
         setError('Payment was rejected or cancelled.');
         return;
       }
@@ -430,8 +490,9 @@ export default function SubmitPage() {
         </button>
         {step < STEPS.length - 1 ? (
           <button
-            onClick={() => { setError(''); setStep((s) => s + 1); }}
-            className="px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-xl font-semibold text-white transition-colors flex items-center gap-2"
+            onClick={handleNext}
+            disabled={step === 0 && !canAdvanceFromStep0}
+            className="px-6 py-3 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold text-white transition-colors flex items-center gap-2"
           >
             Next <ChevronRight className="w-5 h-5" />
           </button>
