@@ -17,7 +17,7 @@ export default function Layout({ children }) {
             <span className="font-display text-xl font-bold text-white">Board of Peace</span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/" className="text-neutral-300 hover:text-amber-400 transition-colors">Directory</Link>
+            <Link to="/#directory" className="text-neutral-300 hover:text-amber-400 transition-colors">Directory</Link>
             <Link to="/submit" className="text-neutral-300 hover:text-amber-400 transition-colors">Submit Project</Link>
             <Link to="/dashboard" className="text-neutral-300 hover:text-amber-400 transition-colors">Dashboard</Link>
             <Link to="/admin" className="text-neutral-300 hover:text-amber-400 transition-colors">Admin</Link>
@@ -32,7 +32,7 @@ export default function Layout({ children }) {
         </nav>
         {mobileMenuOpen && (
           <div className="md:hidden px-6 py-4 border-t border-neutral-800 flex flex-col gap-4">
-            <Link to="/" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Directory</Link>
+            <Link to="/#directory" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Directory</Link>
             <Link to="/submit" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Submit Project</Link>
             <Link to="/dashboard" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
             <Link to="/admin" className="text-neutral-300 hover:text-amber-400" onClick={() => setMobileMenuOpen(false)}>Admin</Link>

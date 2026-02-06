@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import { LOGO_PATH, BANNER_PATH } from '../lib/constants';
-import ConnectWalletButton from './ConnectWalletButton';
 
 export default function HeroSection() {
   return (
@@ -42,7 +41,7 @@ export default function HeroSection() {
           Discover verified projects building harmony through art, cryptocurrency, and collective impact on the XRP Ledger
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+        <div className="flex items-center justify-center pt-4">
           <Link
             to="/#directory"
             className="group px-8 py-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 rounded-full font-semibold text-lg shadow-2xl shadow-amber-900/50 transition-all duration-300 hover:scale-105"
@@ -52,7 +51,6 @@ export default function HeroSection() {
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
-          <ConnectWalletButton variant="outline" className="px-8 py-4 text-lg" />
         </div>
 
         <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto pt-12">
