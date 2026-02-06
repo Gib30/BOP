@@ -2,10 +2,12 @@ import { Client } from 'xrpl';
 
 const XRPSCAN_DEX = 'https://xrpscan.com/trade';
 const XRPSCAN_ACCOUNT = 'https://xrpscan.com/account';
+const isTestnet = import.meta.env.VITE_XRPL_NETWORK === 'testnet';
+const WS_URL = isTestnet ? 'wss://s.altnet.rippletest.net:51233' : 'wss://xrplcluster.com';
 
 export async function verifyToken(currency, issuer) {
   try {
-    const client = new Client('wss://xrplcluster.com');
+    const client = new Client(WS_URL);
     await client.connect();
 
     const response = await client.request({

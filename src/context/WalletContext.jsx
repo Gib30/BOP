@@ -70,6 +70,8 @@ export function WalletProvider({ children }) {
     }
   }, [xumm]);
 
+  const isTestnet = import.meta.env.VITE_XRPL_NETWORK === 'testnet';
+
   const requestPayment = useCallback(async (destination, amountDrops = '1000000', memo = '') => {
     if (!xumm) return { ok: false, error: 'XUMM not ready', qrUrl: null };
     try {
@@ -84,8 +86,10 @@ export function WalletProvider({ children }) {
           .join('');
         txjson.Memos = [{ Memo: { MemoData: hex } }];
       }
+      const payload = { txjson, options: { submit: true } };
+      if (isTestnet) payload.NetworkID = 1; // Testnet
       const { created, resolved } = await xumm.payload.createAndSubscribe(
-        { txjson, options: { submit: true } },
+        payload,
         () => {}
       );
       return {
@@ -97,7 +101,7 @@ export function WalletProvider({ children }) {
     } catch (e) {
       return { ok: false, error: e?.message || 'Payment failed', qrUrl: null };
     }
-  }, [xumm]);
+  }, [xumm, isTestnet]);
 
   const value = {
     account,

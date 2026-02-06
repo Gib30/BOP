@@ -13,15 +13,17 @@ If the storage bucket fails, create it manually: **Storage → New bucket** → 
 
 ## 2. Vercel environment variables
 
-In **Vercel → Project → Settings → Environment Variables**, add:
+**Option A – Script (fast):**
+1. Go to [vercel.com/account/tokens](https://vercel.com/account/tokens) → Create token
+2. Add to `.env`: `VERCEL_TOKEN=your_token`
+3. Add to `.env`: `ADMIN_PASSWORD=your_strong_password` (if not set)
+4. Run: `node scripts/add-vercel-env.js`
 
-| Variable | Required | Notes |
-|----------|----------|-------|
-| `VITE_SUPABASE_URL` | Yes | Supabase Project URL |
-| `VITE_SUPABASE_ANON_KEY` | Yes | Supabase anon key |
-| `ADMIN_PASSWORD` | Yes | Password for /admin |
-| `VITE_XUMM_API_KEY` | Optional | For Connect Wallet (from apps.xumm.dev) |
-| `VITE_TREASURY_WALLET` | Optional | XRPL address for 1 XRP submission fee |
+**Option B – Manual:**
+Vercel → Project → Settings → Environment Variables. Add from your `.env`:
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (you have these)
+- `ADMIN_PASSWORD` (choose one)
+- `VITE_XUMM_API_KEY` (optional)
 
 ---
 
