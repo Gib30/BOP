@@ -1,24 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase, hasSupabase } from '../lib/supabase';
 
 export function useComments(projectId, sortBy = 'newest') {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!projectId) {
-      setComments([]);
-      setLoading(false);
-      return;
-    }
-
-    if (!hasSupabase) {
-      setComments([]);
-      setLoading(false);
-      return;
-    }
-
-    async function fetchComments() {
+  const fetchComments = useCallback(
+    async (silent = false) => {
+      if (!projectId || !hasSupabase) return;
+      if (!silent) setLoading(true);
       try {
         let query = supabase
           .from('comments')
@@ -54,6 +44,21 @@ export function useComments(projectId, sortBy = 'newest') {
       } finally {
         setLoading(false);
       }
+    },
+    [projectId, sortBy]
+  );
+
+  useEffect(() => {
+    if (!projectId) {
+      setComments([]);
+      setLoading(false);
+      return;
+    }
+
+    if (!hasSupabase) {
+      setComments([]);
+      setLoading(false);
+      return;
     }
 
     fetchComments();
@@ -61,16 +66,16 @@ export function useComments(projectId, sortBy = 'newest') {
     const channel = supabase
       .channel(`comments:${projectId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'comments', filter: `project_id=eq.${projectId}` }, () => {
-        fetchComments();
+        fetchComments(true);
       })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [projectId, sortBy]);
+  }, [projectId, sortBy, fetchComments]);
 
-  return { comments, loading };
+  return { comments, loading, refetch: () => fetchComments(true) };
 }
 
 export async function postComment(projectId, content, parentId = null, walletAddress = null, displayName = null) {

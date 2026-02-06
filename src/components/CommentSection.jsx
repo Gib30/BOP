@@ -12,7 +12,7 @@ export default function CommentSection({ projectId, commentCount }) {
   const [displayName, setDisplayName] = useState('');
   const { account, isConnected } = useWallet();
 
-  const { comments, loading } = useComments(projectId, sortBy);
+  const { comments, loading, refetch } = useComments(projectId, sortBy);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +33,7 @@ export default function CommentSection({ projectId, commentCount }) {
     } else {
       setContent('');
       setReplyingTo(null);
+      refetch();
     }
   };
 
